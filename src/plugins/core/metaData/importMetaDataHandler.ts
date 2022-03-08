@@ -23,6 +23,7 @@ class ImportMetaAction {
   constructor(private readonly fileName: string, private readonly httpFileStore: models.HttpFileStore) {}
 
   async process(context: ImportProcessorContext): Promise<boolean> {
+    io.log.trace(`replacing variables for file import ${this.fileName}`);
     const fileName = await utils.replaceVariables(this.fileName, 'import', context);
     if (fileName === models.HookCancel) {
       return false;
