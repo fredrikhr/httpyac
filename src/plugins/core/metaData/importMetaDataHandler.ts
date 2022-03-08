@@ -23,7 +23,15 @@ class ImportMetaAction {
   constructor(private readonly fileName: string, private readonly httpFileStore: models.HttpFileStore) {}
 
   async process(context: ImportProcessorContext): Promise<boolean> {
-    const httpFile = await utils.replaceFilePath(this.fileName, context, async (absoluteFileName: models.PathLike) => {
+    const fileName = await utils.replaceVariables(this.fileName, 'import', context);
+    if (fileName === models.HookCancel) {
+      return false;
+    } 
+    if (typeof fileName !== 'string') {
+      io.log.error(new TypeError(`Expected expansion of '${this.fileName}' to return a value of type string, but got ${typeof fileName}`));
+      return false;
+    }
+    const httpFile = await utils.replaceFilePath(fileName, context, async (absoluteFileName: models.PathLike) => {
       io.log.trace(`parse imported file ${absoluteFileName}`);
       const text = await io.fileProvider.readFile(absoluteFileName, 'utf-8');
       const ref = await this.httpFileStore.getOrCreate(absoluteFileName, () => Promise.resolve(text), 0, {
