@@ -24,7 +24,7 @@ class ImportMetaAction {
 
   async process(context: ImportProcessorContext): Promise<boolean> {
     io.log.trace(`replacing variables for file import ${this.fileName}`);
-    const fileName = await utils.replaceVariables(this.fileName, 'import', context);
+    const fileName = await utils.replaceVariables(this.fileName, this.id, context);
     if (fileName === models.HookCancel) {
       return false;
     } 
